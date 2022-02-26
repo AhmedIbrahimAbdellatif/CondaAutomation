@@ -24,7 +24,8 @@ def get_commands(query):
             soup = BeautifulSoup(html_text, "html.parser")
             for code in soup.find_all('code'):
                 commands.append(code.get_text().lstrip().rstrip())
-            return commands
+            break
+    return commands
 
 
 
@@ -35,14 +36,17 @@ def main():
         opts, _ = getopt.getopt(sys.argv[1:],"e:p:")
         env, query = parse_inputs(opts)
         commands = get_commands(query)
-        for command in commands:
-            cmd = command + " -y -n " + env
-            print(cmd)
-            userinput = input(Style.BRIGHT + Fore.RED + "Use this command? (y/n): " + Style.NORMAL + Fore.RESET)
-            if(userinput == "y"):
-                proc = run(cmd,
-                text=True, capture_output=True)
-                return print(proc.stdout)
+        if len(commands) == 0:
+            print(Style.BRIGHT + Fore.RED + "\nPackage not found, type a more accurate name!" + Style.NORMAL + Fore.RESET)
+        else:
+            for command in commands:
+                cmd = command + " -y -n " + env
+                print(cmd)
+                userinput = input(Style.BRIGHT + Fore.RED + "Use this command? (y/n): " + Style.NORMAL + Fore.RESET)
+                if(userinput == "y"):
+                    proc = run(cmd,
+                    text=True, capture_output=True)
+                    return print(proc.stdout)
         print(Fore.LIGHTYELLOW_EX + "\nNo packages installed!\n" + Fore.RESET)
     except getopt.GetoptError:
         print(Fore.YELLOW + 'python package-installer.py -e <conda environment> -p <package name>' + Fore.RESET)
